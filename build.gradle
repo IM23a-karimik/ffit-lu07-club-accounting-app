@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.3.4'
     id 'io.spring.dependency-management' version '1.1.6'
 }
+
 group = 'ch.bzz'
 version = '1.0-SNAPSHOT'
 java {
@@ -23,6 +24,289 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "$buildDir/generated/openapi/src/main/java"
+        }
+    }
+}
+
+def generatedSrcDir = "$buildDir/generated/openapi/src/main/java"
+
+tasks.register('openApiGenerate') {
+    outputs.dir(generatedSrcDir)
+    doLast {
+        def apiDir = file("$generatedSrcDir/ch/bzz/generated/api")
+        def modelDir = file("$generatedSrcDir/ch/bzz/generated/model")
+        apiDir.mkdirs()
+        modelDir.mkdirs()
+
+        file("$apiDir/ProjectApi.java").text = """
+package ch.bzz.generated.api;
+
+import ch.bzz.generated.model.LoginProject200Response;
+import ch.bzz.generated.model.LoginRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+public interface ProjectApi {
+
+    @RequestMapping(method = RequestMethod.POST, value = "/project/register", consumes = {"application/json"})
+    ResponseEntity<Void> createProject(@RequestBody LoginRequest loginRequest);
+
+    @RequestMapping(method = RequestMethod.POST, value = "/project/login", consumes = {"application/json"}, produces = {"application/json"})
+    ResponseEntity<LoginProject200Response> loginProject(@RequestBody LoginRequest loginRequest);
+}
+"""
+
+        file("$apiDir/AccountApi.java").text = """
+package ch.bzz.generated.api;
+
+import ch.bzz.generated.model.Account;
+import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+public interface AccountApi {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/account", produces = {"application/json"})
+    ResponseEntity<List<Account>> listAccounts(@RequestParam(value = "projectName", required = true) String projectName);
+
+    @RequestMapping(method = RequestMethod.POST, value = "/account", consumes = {"application/json"}, produces = {"application/json"})
+    ResponseEntity<Account> createAccount(@RequestBody Account account);
+
+    @RequestMapping(method = RequestMethod.GET, value = "/account/{id}", produces = {"application/json"})
+    ResponseEntity<Account> getAccount(@PathVariable("id") Long id);
+}
+"""
+
+        file("$apiDir/BookingApi.java").text = """
+package ch.bzz.generated.api;
+
+import ch.bzz.generated.model.Booking;
+import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+public interface BookingApi {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/booking", produces = {"application/json"})
+    ResponseEntity<List<Booking>> listBookings(@RequestParam(value = "projectName", required = true) String projectName);
+
+    @RequestMapping(method = RequestMethod.POST, value = "/booking", consumes = {"application/json"}, produces = {"application/json"})
+    ResponseEntity<Booking> createBooking(@RequestBody Booking booking);
+
+    @RequestMapping(method = RequestMethod.GET, value = "/booking/{id}", produces = {"application/json"})
+    ResponseEntity<Booking> getBooking(@PathVariable("id") Long id);
+}
+"""
+
+        file("$modelDir/Project.java").text = """
+package ch.bzz.generated.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class Project {
+    @JsonProperty("projectName")
+    private String projectName;
+
+    @JsonProperty("passwordHash")
+    private String passwordHash;
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+}
+"""
+
+        file("$modelDir/LoginRequest.java").text = """
+package ch.bzz.generated.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class LoginRequest {
+
+    @JsonProperty("projectName")
+    private String projectName;
+
+    @JsonProperty("password")
+    private String password;
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}
+"""
+
+        file("$modelDir/LoginProject200Response.java").text = """
+package ch.bzz.generated.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class LoginProject200Response {
+
+    @JsonProperty("jwt")
+    private String jwt;
+
+    public String getJwt() {
+        return jwt;
+    }
+
+    public void setJwt(String jwt) {
+        this.jwt = jwt;
+    }
+}
+"""
+
+        file("$modelDir/Account.java").text = """
+package ch.bzz.generated.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class Account {
+    @JsonProperty("id")
+    private Long id;
+
+    @JsonProperty("accountNumber")
+    private String accountNumber;
+
+    @JsonProperty("name")
+    private String name;
+
+    @JsonProperty("projectName")
+    private String projectName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+}
+"""
+
+        file("$modelDir/Booking.java").text = """
+package ch.bzz.generated.model;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class Booking {
+    @JsonProperty("id")
+    private Long id;
+
+    @JsonProperty("bookingNumber")
+    private String bookingNumber;
+
+    @JsonProperty("date")
+    private String date;
+
+    @JsonProperty("text")
+    private String text;
+
+    @JsonProperty("debitAccountId")
+    private Long debitAccountId;
+
+    @JsonProperty("creditAccountId")
+    private Long creditAccountId;
+
+    @JsonProperty("amount")
+    private Double amount;
+
+    @JsonProperty("projectName")
+    private String projectName;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getBookingNumber() { return bookingNumber; }
+    public void setBookingNumber(String bookingNumber) { this.bookingNumber = bookingNumber; }
+
+    public String getDate() { return date; }
+    public void setDate(String date) { this.date = date; }
+
+    public String getText() { return text; }
+    public void setText(String text) { this.text = text; }
+
+    public Long getDebitAccountId() { return debitAccountId; }
+    public void setDebitAccountId(Long debitAccountId) { this.debitAccountId = debitAccountId; }
+
+    public Long getCreditAccountId() { return creditAccountId; }
+    public void setCreditAccountId(Long creditAccountId) { this.creditAccountId = creditAccountId; }
+
+    public Double getAmount() { return amount; }
+    public void setAmount(Double amount) { this.amount = amount; }
+
+    public String getProjectName() { return projectName; }
+    public void setProjectName(String projectName) { this.projectName = projectName; }
+}
+"""
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn tasks.named('openApiGenerate')
 }
 
 test {
