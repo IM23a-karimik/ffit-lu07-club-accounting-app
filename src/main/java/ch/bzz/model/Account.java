@@ -25,7 +25,7 @@ public class Account {
     @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(name = "account_number", nullable = false, unique = true, length = 20)
+    @Column(name = "account_number", nullable = false, unique = true, length = 20, updatable = false)
     private String accountNumber;
 
     @Column(name = "name", nullable = false, length = 120)
