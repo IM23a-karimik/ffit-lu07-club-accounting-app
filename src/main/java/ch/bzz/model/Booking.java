@@ -27,7 +27,7 @@ public class Booking {
     @Column(name = "id", nullable = false, updatable = false)
     private Long id;
 
-    @Column(name = "booking_number", nullable = false, unique = true, length = 30)
+    @Column(name = "booking_number", nullable = false, unique = true, length = 30, updatable = false)
     private String bookingNumber;
 
     @Column(name = "booking_date", nullable = false)
